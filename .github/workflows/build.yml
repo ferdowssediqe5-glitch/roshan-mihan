@@ -23,11 +23,29 @@ jobs:
       - name: Extract project
         run: |
           unzip -q roshan_mihan_v2_phone_ready.zip -d extracted
-                - name: Fix Dart syntax
+
+      - name: Fix Dart syntax
         working-directory: extracted/roshan_mihan_build
         run: |
-          sed -i '219s/);/));/' lib/main.dart
-          sed -i '270s/);/));/' lib/main.dart
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("lib/main.dart")
+          s = p.read_text()
+
+          s = s.replace(
+              "      ]),\n  );\n}\n\nclass GalleryPage",
+              "      ])),\n  );\n}\n\nclass GalleryPage"
+          )
+
+          s = s.replace(
+              "      ])),\n    ],\n  ]);\n}\n\nclass OrderPage",
+              "      ]))),\n    ],\n  ]);\n}\n\nclass OrderPage"
+          )
+
+          p.write_text(s)
+          print("Dart syntax fixes applied.")
+          PY
 
       - name: Create Android project
         working-directory: extracted/roshan_mihan_build
