@@ -1,0 +1,42 @@
+name: Build Roshan Mihan APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Extract project
+        run: |
+          unzip -q roshan_mihan_v2_phone_ready.zip -d extracted
+
+      - name: Create Android project
+        working-directory: extracted/roshan_mihan_build
+        run: |
+          flutter create --platforms=android --org com.roshanmihan .
+          flutter pub get
+
+      - name: Build APK
+        working-directory: extracted/roshan_mihan_build
+        run: |
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: roshan-mihan-apk
+          path: extracted/roshan_mihan_build/build/app/outputs/flutter-apk/app-release.apk
